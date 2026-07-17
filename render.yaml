@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: coding-leaderboard
+    env: node
+    plan: free
+    buildCommand: npm run render-build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: REFRESH_INTERVAL_MS
+        value: 180000
+      - key: SEED_DEMO_DATA
+        value: false
