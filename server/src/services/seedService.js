@@ -19,7 +19,7 @@ async function seedIfEmpty() {
       avatarColor: "#7c3aed",
       platforms: [
         { platform: "leetcode", username: "johnsmith" },
-        { platform: "hackerrank", username: "gracehopper" }
+        { platform: "codechef", username: "gracehopper" }
       ]
     },
     {

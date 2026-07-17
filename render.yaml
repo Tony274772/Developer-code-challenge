@@ -10,8 +10,6 @@ services:
         value: production
       - key: MONGO_URI
         sync: false
-      - key: CLIENT_ORIGIN
-        sync: false
       - key: REFRESH_INTERVAL_MS
         value: 180000
       - key: SEED_DEMO_DATA

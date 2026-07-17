@@ -1,9 +1,11 @@
 const User = require("../models/User");
-const { fetchPlatformStats } = require("./platforms");
+const { SUPPORTED_PLATFORMS, fetchPlatformStats } = require("./platforms");
 const { recalculateRanks } = require("./rankService");
 
 async function syncUser(user) {
   let totalSolved = 0;
+
+  user.platforms = user.platforms.filter((platform) => SUPPORTED_PLATFORMS.includes(platform.platform));
 
   user.platforms = await Promise.all(
     user.platforms.map(async (platform) => {

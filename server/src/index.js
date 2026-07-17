@@ -11,20 +11,18 @@ const { seedIfEmpty } = require("./services/seedService");
 const { refreshAllUsers } = require("./services/refreshService");
 
 const PORT = process.env.PORT || 5000;
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "http://localhost:5173";
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN;
 const REFRESH_INTERVAL_MS = Number(process.env.REFRESH_INTERVAL_MS || 180000);
+const corsOptions = CLIENT_ORIGIN ? { origin: CLIENT_ORIGIN } : undefined;
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: {
-    origin: CLIENT_ORIGIN,
-    methods: ["GET", "POST", "PATCH", "DELETE"]
-  }
+  cors: corsOptions
 });
 
 app.set("io", io);
-app.use(cors({ origin: CLIENT_ORIGIN }));
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use("/api", leaderboardRoutes);
 

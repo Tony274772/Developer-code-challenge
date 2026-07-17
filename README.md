@@ -5,9 +5,8 @@ A MERN stack website that ranks users by total solved questions across coding pl
 ## Features
 
 - Live leaderboard sorted by total solved questions
-- Add users with LeetCode, CodeChef, HackerRank, Codeforces, or other platform handles
+- Add users with LeetCode, CodeChef, or Codeforces platform handles
 - Platform adapters for LeetCode GraphQL, CodeChef profile pages, and Codeforces public API
-- HackerRank and `other` are marked for manual updates because they do not provide a stable public solved-count API
 - MongoDB persistence with Express routes
 - Socket.IO real-time updates
 
@@ -49,11 +48,10 @@ For a single-service MERN deployment such as Render:
 - Environment variables:
   - `NODE_ENV=production`
   - `MONGO_URI=<your MongoDB Atlas connection string>`
-  - `CLIENT_ORIGIN=<your deployed app URL>`
   - `REFRESH_INTERVAL_MS=180000`
   - `SEED_DEMO_DATA=false`
 
-In production, Express serves the built React app from `dist/`, so `VITE_API_URL` is not required unless you split frontend and backend onto different domains.
+In production, Express serves the built React app from `dist/`, so `VITE_API_URL` is not required unless you split frontend and backend onto different domains. The server now accepts the hosted origin without a manual `CLIENT_ORIGIN` setting, which makes a single-service Render deployment easier.
 
 ## Notes
 

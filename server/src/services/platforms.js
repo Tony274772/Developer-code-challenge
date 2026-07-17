@@ -8,6 +8,8 @@ const request = axios.create({
   }
 });
 
+const SUPPORTED_PLATFORMS = ["leetcode", "codechef", "codeforces"];
+
 async function fetchLeetCode(username) {
   const query = `
     query userSessionProgress($username: String!) {
@@ -72,7 +74,7 @@ async function fetchCodeforces(username) {
 async function fetchUnsupported(platform, username) {
   return {
     solved: 0,
-    profileUrl: platform === "hackerrank" ? `https://www.hackerrank.com/profile/${username}` : "",
+    profileUrl: "",
     status: "manual-update"
   };
 }
@@ -94,4 +96,4 @@ async function fetchPlatformStats(platform, username) {
   }
 }
 
-module.exports = { fetchPlatformStats };
+module.exports = { SUPPORTED_PLATFORMS, fetchPlatformStats };

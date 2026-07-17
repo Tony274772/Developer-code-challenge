@@ -5,7 +5,7 @@ import { Activity, Code2, Medal, Plus, RefreshCcw, Search, Trophy } from "lucide
 import "./styles.css";
 
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:5000" : "");
-const platformOptions = ["leetcode", "codechef", "hackerrank", "codeforces", "other"];
+const platformOptions = ["leetcode", "codechef", "codeforces"];
 
 function initials(name) {
   return name

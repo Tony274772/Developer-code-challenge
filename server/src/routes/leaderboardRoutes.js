@@ -2,6 +2,7 @@ const express = require("express");
 const User = require("../models/User");
 const { normalizeName, platformKey, recalculateRanks } = require("../services/rankService");
 const { refreshUser } = require("../services/refreshService");
+const { SUPPORTED_PLATFORMS } = require("../services/platforms");
 
 const router = express.Router();
 
@@ -22,7 +23,7 @@ router.get("/leaderboard", async (_req, res, next) => {
 router.post("/users", async (req, res, next) => {
   try {
     const requestedName = req.body.name?.trim();
-    const requestedPlatforms = req.body.platforms || [];
+    const requestedPlatforms = (req.body.platforms || []).filter((platform) => SUPPORTED_PLATFORMS.includes(platform.platform));
     if (!requestedName) return res.status(400).json({ message: "Name is required" });
 
     const users = await User.find();
