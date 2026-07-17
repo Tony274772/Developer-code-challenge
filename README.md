@@ -18,7 +18,7 @@ A MERN stack website that ranks users by total solved questions across coding pl
    npm install
    ```
 
-2. Create `.env` from `.env.example` and set `MONGO_URI`.
+2. Create `.env` from `.env.example` and set `MONGO_URI` and `ADMIN_ACCESS_CODE`.
 
 3. Run MongoDB locally or point `MONGO_URI` to MongoDB Atlas.
 
@@ -34,7 +34,8 @@ The React app runs at `http://localhost:5173` and the API runs at `http://localh
 
 - `GET /api/leaderboard` returns ranked users
 - `POST /api/users` adds a user
-- `PATCH /api/users/:id` updates a user
+- `PATCH /api/users/:id` updates a user and requires `x-admin-access-code`
+- `DELETE /api/users/:id` deletes a user and requires `x-admin-access-code`
 - `POST /api/users/:id/refresh` refreshes one user immediately
 
 ## Notes
@@ -48,6 +49,7 @@ For a single-service MERN deployment such as Render:
 - Environment variables:
   - `NODE_ENV=production`
   - `MONGO_URI=<your MongoDB Atlas connection string>`
+  - `ADMIN_ACCESS_CODE=<shared secret for edit/delete>`
   - `REFRESH_INTERVAL_MS=180000`
   - `SEED_DEMO_DATA=false`
 

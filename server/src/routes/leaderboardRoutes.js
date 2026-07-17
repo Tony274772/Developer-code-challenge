@@ -6,6 +6,20 @@ const { SUPPORTED_PLATFORMS } = require("../services/platforms");
 
 const router = express.Router();
 
+function requireAdminAccess(req, res, next) {
+  const adminCode = process.env.ADMIN_ACCESS_CODE;
+  if (!adminCode) {
+    return res.status(500).json({ message: "ADMIN_ACCESS_CODE is not configured" });
+  }
+
+  const providedCode = req.header("x-admin-access-code");
+  if (!providedCode || providedCode !== adminCode) {
+    return res.status(403).json({ message: "Admin access code is required" });
+  }
+
+  return next();
+}
+
 router.get("/health", (_req, res) => {
   res.json({ ok: true, service: "coding-leaderboard" });
 });
@@ -55,7 +69,7 @@ router.post("/users", async (req, res, next) => {
   }
 });
 
-router.patch("/users/:id", async (req, res, next) => {
+router.patch("/users/:id", requireAdminAccess, async (req, res, next) => {
   try {
     const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!user) return res.status(404).json({ message: "User not found" });
@@ -63,6 +77,20 @@ router.patch("/users/:id", async (req, res, next) => {
     const io = req.app.get("io");
     io.emit("leaderboard:update", await User.find().sort({ rank: 1 }));
     res.json(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete("/users/:id", requireAdminAccess, async (req, res, next) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const rankedUsers = await recalculateRanks();
+    const io = req.app.get("io");
+    io.emit("leaderboard:update", rankedUsers);
+    res.json({ message: "User deleted" });
   } catch (error) {
     next(error);
   }

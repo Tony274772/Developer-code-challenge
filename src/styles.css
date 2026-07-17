@@ -273,7 +273,7 @@ form button {
   border-bottom: 1px solid #edf2f7;
   display: grid;
   gap: 14px;
-  grid-template-columns: 54px 46px minmax(0, 1fr) 120px 42px;
+  grid-template-columns: 54px 46px minmax(0, 1fr) minmax(120px, 160px) minmax(92px, 116px);
   min-height: 92px;
   padding: 16px 18px;
 }
@@ -353,6 +353,7 @@ form button {
 
 .solved {
   text-align: right;
+  justify-self: end;
 }
 
 .solved strong {
@@ -367,6 +368,12 @@ form button {
   font-weight: 700;
 }
 
+.row-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 .icon-button {
   align-items: center;
   background: #edf2f7;
@@ -376,6 +383,81 @@ form button {
   height: 38px;
   justify-content: center;
   width: 38px;
+}
+
+.icon-button.danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.modal-backdrop {
+  align-items: center;
+  background: rgba(15, 23, 42, 0.5);
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  padding: 18px;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 20;
+}
+
+.modal {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.24);
+  max-width: 640px;
+  padding: 22px;
+  width: min(100%, 640px);
+}
+
+.modal-header {
+  align-items: start;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.modal-header .icon-button {
+  background: #f8fafc;
+}
+
+.modal-form {
+  margin-top: 18px;
+}
+
+.modal-description {
+  color: #667085;
+  font-size: 0.92rem;
+  margin-bottom: 4px;
+}
+
+.modal-error {
+  color: #b91c1c;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.secondary-button {
+  background: #edf2f7;
+  color: #172033;
+}
+
+.danger-button {
+  background: #b91c1c;
+}
+
+.delete-modal {
+  max-width: 520px;
 }
 
 .spin {
@@ -410,7 +492,12 @@ form button {
   }
 
   .rank-row {
-    grid-template-columns: 42px 42px minmax(0, 1fr) 38px;
+    grid-template-columns: 42px 42px minmax(0, 1fr) auto;
+  }
+
+  .row-actions {
+    flex-direction: row;
+    gap: 6px;
   }
 
   .solved {
@@ -419,8 +506,8 @@ form button {
   }
 
   .icon-button {
-    grid-column: 4 / 5;
-    grid-row: 1 / 2;
+    grid-column: auto;
+    grid-row: auto;
   }
 }
 
@@ -441,6 +528,23 @@ form button {
     gap: 10px;
     grid-template-columns: 38px minmax(0, 1fr) 38px;
     padding: 14px;
+  }
+
+  .solved {
+    grid-column: 2 / 3;
+  }
+
+  .row-actions {
+    grid-column: 3 / 4;
+    justify-content: flex-end;
+  }
+
+  .modal {
+    padding: 18px;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
   }
 
   .avatar {

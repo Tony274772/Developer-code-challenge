@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { io } from "socket.io-client";
-import { Activity, Code2, Medal, Plus, RefreshCcw, Search, Trophy } from "lucide-react";
+import { Activity, Code2, Medal, PencilLine, Plus, RefreshCcw, Search, Trash2, Trophy, X } from "lucide-react";
 import "./styles.css";
 
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:5000" : "");
@@ -20,6 +20,11 @@ function App() {
   const [users, setUsers] = useState([]);
   const [query, setQuery] = useState("");
   const [syncingId, setSyncingId] = useState("");
+  const [accessCode, setAccessCode] = useState("");
+  const [editingUser, setEditingUser] = useState(null);
+  const [editForm, setEditForm] = useState({ name: "", platforms: [] });
+  const [deleteTargetUser, setDeleteTargetUser] = useState(null);
+  const [actionError, setActionError] = useState("");
   const [form, setForm] = useState({
     name: "",
     platform: "leetcode",
@@ -94,6 +99,100 @@ function App() {
     await fetch(`${API_URL}/api/users/${userId}/refresh`, { method: "POST" });
     setSyncingId("");
     await loadLeaderboard();
+  }
+
+  async function deleteUser(userId) {
+    const response = await fetch(`${API_URL}/api/users/${userId}`, {
+      method: "DELETE",
+      headers: {
+        "x-admin-access-code": accessCode.trim()
+      }
+    });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      setActionError(payload.message || "Delete failed");
+      return;
+    }
+
+    setActionError("");
+    setDeleteTargetUser(null);
+    if (editingUser?._id === userId) {
+      closeEditUser();
+    }
+    await loadLeaderboard();
+  }
+
+  function openEditUser(user) {
+    setActionError("");
+    setEditingUser(user);
+    setEditForm({
+      name: user.name,
+      platforms: user.platforms.map((platform) => ({
+        platform: platform.platform,
+        username: platform.username
+      }))
+    });
+  }
+
+  function closeEditUser() {
+    setEditingUser(null);
+    setEditForm({ name: "", platforms: [] });
+    setActionError("");
+  }
+
+  function openDeleteUser(user) {
+    setActionError("");
+    setDeleteTargetUser(user);
+  }
+
+  function closeDeleteUser() {
+    setDeleteTargetUser(null);
+    setActionError("");
+  }
+
+  async function saveUserChanges(event) {
+    event.preventDefault();
+    if (!editingUser) return;
+
+    const name = editForm.name.trim();
+    const platforms = editForm.platforms
+      .map((platform) => ({
+        platform: platform.platform,
+        username: platform.username.trim()
+      }))
+      .filter((platform) => platform.username);
+
+    if (!name || platforms.length === 0) return;
+
+    const response = await fetch(`${API_URL}/api/users/${editingUser._id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-access-code": accessCode.trim()
+      },
+      body: JSON.stringify({
+        name,
+        platforms
+      })
+    });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      setActionError(payload.message || "Save failed");
+      return;
+    }
+
+    setActionError("");
+    closeEditUser();
+    await loadLeaderboard();
+  }
+
+  async function confirmDeleteUser(event) {
+    event.preventDefault();
+    if (!deleteTargetUser) return;
+
+    await deleteUser(deleteTargetUser._id);
   }
 
   return (
@@ -220,19 +319,141 @@ function App() {
                   <strong>{user.totalSolved.toLocaleString()}</strong>
                   <span>questions</span>
                 </div>
-                <button
-                  className="icon-button"
-                  title="Refresh this coder"
-                  onClick={() => refreshUser(user._id)}
-                  disabled={syncingId === user._id}
-                >
-                  <RefreshCcw size={18} className={syncingId === user._id ? "spin" : ""} />
-                </button>
+                <div className="row-actions">
+                  <button
+                    className="icon-button"
+                    title="Edit this coder"
+                    onClick={() => openEditUser(user)}
+                  >
+                    <PencilLine size={18} />
+                  </button>
+                  <button
+                    className="icon-button"
+                    title="Refresh this coder"
+                    onClick={() => refreshUser(user._id)}
+                    disabled={syncingId === user._id}
+                  >
+                    <RefreshCcw size={18} className={syncingId === user._id ? "spin" : ""} />
+                  </button>
+                  <button
+                    className="icon-button danger"
+                    title="Delete this coder"
+                    onClick={() => openDeleteUser(user)}
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               </article>
             ))}
           </div>
         </section>
       </section>
+
+      {editingUser ? (
+        <div className="modal-backdrop" onClick={closeEditUser}>
+          <section className="modal" onClick={(event) => event.stopPropagation()}>
+            <div className="modal-header">
+              <div>
+                <p className="eyebrow">Edit coder</p>
+                <h2>Correct the name or platform handles</h2>
+              </div>
+              <button className="icon-button" onClick={closeEditUser} aria-label="Close edit form">
+                <X size={18} />
+              </button>
+            </div>
+
+            <form className="modal-form" onSubmit={saveUserChanges}>
+              <p className="modal-description">Enter the shared admin code to save changes.</p>
+
+              <label>
+                Name
+                <input
+                  value={editForm.name}
+                  onChange={(event) => setEditForm({ ...editForm, name: event.target.value })}
+                  placeholder="Correct display name"
+                />
+              </label>
+
+              {editForm.platforms.map((platform, index) => (
+                <label key={`${platform.platform}-${index}`}>
+                  {platform.platform} username
+                  <input
+                    value={platform.username}
+                    onChange={(event) => {
+                      const nextPlatforms = [...editForm.platforms];
+                      nextPlatforms[index] = { ...platform, username: event.target.value };
+                      setEditForm({ ...editForm, platforms: nextPlatforms });
+                    }}
+                    placeholder="Correct platform handle"
+                  />
+                </label>
+              ))}
+
+              <label>
+                Admin code
+                <input
+                  value={accessCode}
+                  onChange={(event) => setAccessCode(event.target.value)}
+                  placeholder="Shared access code"
+                  type="password"
+                />
+              </label>
+
+              {actionError ? <p className="modal-error">{actionError}</p> : null}
+
+              <div className="modal-actions">
+                <button type="button" className="secondary-button" onClick={closeEditUser}>
+                  Cancel
+                </button>
+                <button type="submit">Save changes</button>
+              </div>
+            </form>
+          </section>
+        </div>
+      ) : null}
+
+      {deleteTargetUser ? (
+        <div className="modal-backdrop" onClick={closeDeleteUser}>
+          <section className="modal delete-modal" onClick={(event) => event.stopPropagation()}>
+            <div className="modal-header">
+              <div>
+                <p className="eyebrow">Delete coder</p>
+                <h2>Remove {deleteTargetUser.name}?</h2>
+              </div>
+              <button className="icon-button" onClick={closeDeleteUser} aria-label="Close delete form">
+                <X size={18} />
+              </button>
+            </div>
+
+            <form className="modal-form" onSubmit={confirmDeleteUser}>
+              <p className="modal-description">
+                This will permanently delete the user and all of their platform data.
+              </p>
+
+              <label>
+                Admin code
+                <input
+                  value={accessCode}
+                  onChange={(event) => setAccessCode(event.target.value)}
+                  placeholder="Shared access code"
+                  type="password"
+                />
+              </label>
+
+              {actionError ? <p className="modal-error">{actionError}</p> : null}
+
+              <div className="modal-actions">
+                <button type="button" className="secondary-button" onClick={closeDeleteUser}>
+                  Cancel
+                </button>
+                <button type="submit" className="danger-button">
+                  Delete user
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }
