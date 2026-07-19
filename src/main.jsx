@@ -19,7 +19,7 @@ function initials(name) {
 function App() {
   const [users, setUsers] = useState([]);
   const [query, setQuery] = useState("");
-  const [syncingId, setSyncingId] = useState("");
+  const [refreshingAll, setRefreshingAll] = useState(false);
   const [accessCode, setAccessCode] = useState("");
   const [editingUser, setEditingUser] = useState(null);
   const [editForm, setEditForm] = useState({ name: "", platforms: [] });
@@ -94,10 +94,10 @@ function App() {
     }
   }
 
-  async function refreshUser(userId) {
-    setSyncingId(userId);
-    await fetch(`${API_URL}/api/users/${userId}/refresh`, { method: "POST" });
-    setSyncingId("");
+  async function refreshLeaderboard() {
+    setRefreshingAll(true);
+    await fetch(`${API_URL}/api/leaderboard/refresh`, { method: "POST" });
+    setRefreshingAll(false);
     await loadLeaderboard();
   }
 
@@ -281,14 +281,20 @@ function App() {
         <section className="leaderboard">
           <div className="table-tools">
             <h2>Rankings</h2>
-            <label className="search">
-              <Search size={18} />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search users or platforms"
-              />
-            </label>
+            <div className="table-actions">
+              <label className="search">
+                <Search size={18} />
+                <input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Search users or platforms"
+                />
+              </label>
+              <button className="refresh-button" onClick={refreshLeaderboard} disabled={refreshingAll}>
+                <RefreshCcw size={18} className={refreshingAll ? "spin" : ""} />
+                Refresh all
+              </button>
+            </div>
           </div>
 
           <div className="rows">
@@ -326,14 +332,6 @@ function App() {
                     onClick={() => openEditUser(user)}
                   >
                     <PencilLine size={18} />
-                  </button>
-                  <button
-                    className="icon-button"
-                    title="Refresh this coder"
-                    onClick={() => refreshUser(user._id)}
-                    disabled={syncingId === user._id}
-                  >
-                    <RefreshCcw size={18} className={syncingId === user._id ? "spin" : ""} />
                   </button>
                   <button
                     className="icon-button danger"

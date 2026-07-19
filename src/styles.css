@@ -242,6 +242,14 @@ form button {
   padding: 18px;
 }
 
+.table-actions {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
 .search {
   align-items: center;
   background: #f8fafc;
@@ -262,6 +270,19 @@ form button {
   min-height: 42px;
   padding: 0;
   width: 100%;
+}
+
+.refresh-button {
+  align-items: center;
+  background: #0f766e;
+  border-radius: 7px;
+  color: #fff;
+  display: flex;
+  flex: 0 0 auto;
+  font-weight: 800;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
 }
 
 .rows {
@@ -477,6 +498,10 @@ form button {
     flex-direction: column;
   }
 
+  .table-actions {
+    justify-content: stretch;
+  }
+
   .live-pill {
     width: max-content;
   }
@@ -485,6 +510,11 @@ form button {
   .platform-breakdown,
   .workspace {
     grid-template-columns: 1fr;
+  }
+
+  .search,
+  .refresh-button {
+    width: 100%;
   }
 
   .panel {

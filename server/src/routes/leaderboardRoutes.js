@@ -1,7 +1,7 @@
 const express = require("express");
 const User = require("../models/User");
 const { normalizeName, platformKey, recalculateRanks } = require("../services/rankService");
-const { refreshUser } = require("../services/refreshService");
+const { refreshAllUsers, refreshUser } = require("../services/refreshService");
 const { SUPPORTED_PLATFORMS } = require("../services/platforms");
 
 const router = express.Router();
@@ -103,6 +103,16 @@ router.post("/users/:id/refresh", async (req, res, next) => {
     const io = req.app.get("io");
     io.emit("leaderboard:update", await User.find().sort({ rank: 1 }));
     res.json(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/leaderboard/refresh", async (req, res, next) => {
+  try {
+    const io = req.app.get("io");
+    const rankedUsers = await refreshAllUsers(io);
+    res.json(rankedUsers);
   } catch (error) {
     next(error);
   }
