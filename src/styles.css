@@ -525,18 +525,35 @@ form button {
   }
 
   .rank-row {
-    gap: 10px;
-    grid-template-columns: 38px minmax(0, 1fr) 38px;
+    align-items: start;
+    gap: 10px 12px;
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+    grid-template-areas:
+      "rank person meta"
+      "rank person actions";
     padding: 14px;
   }
 
+  .rank {
+    grid-area: rank;
+    align-self: start;
+  }
+
   .solved {
-    grid-column: 2 / 3;
+    grid-area: meta;
+    justify-self: end;
+    text-align: right;
+    align-self: start;
   }
 
   .row-actions {
-    grid-column: 3 / 4;
+    grid-area: actions;
     justify-content: flex-end;
+  }
+
+  .person {
+    grid-area: person;
+    min-width: 0;
   }
 
   .modal {
@@ -551,7 +568,26 @@ form button {
     display: none;
   }
 
-  .rank {
+  .rank,
+  .solved strong {
     font-size: 1rem;
+  }
+
+  .solved span {
+    font-size: 0.75rem;
+  }
+
+  .platforms {
+    gap: 6px;
+  }
+
+  .platforms a {
+    font-size: 0.72rem;
+    padding: 5px 7px;
+  }
+
+  .icon-button {
+    height: 36px;
+    width: 36px;
   }
 }
